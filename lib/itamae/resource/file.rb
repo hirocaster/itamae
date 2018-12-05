@@ -65,7 +65,7 @@ module Itamae
         change_target = attributes.modified ? @temppath : attributes.path
 
         if attributes.owner || attributes.group
-          run_specinfra(:change_file_owner, change_target, attributes.owner, attributes.group)
+          run_specinfra(:change_file_owner, change_target, attributes.owner, escape_name(attributes.group))
         end
 
         if attributes.mode
@@ -89,7 +89,7 @@ module Itamae
         if attributes.owner || attributes.group || attributes.modified
           owner = attributes.owner || run_specinfra(:get_file_owner_user, attributes.path).stdout.chomp
           group = attributes.group || run_specinfra(:get_file_owner_group, attributes.path).stdout.chomp
-          run_specinfra(:change_file_owner, change_target, owner, group)
+          run_specinfra(:change_file_owner, change_target, owner, escape_name(group))
         end
 
         if attributes.mode || attributes.modified
@@ -195,6 +195,10 @@ module Itamae
         ensure
           f.unlink if f
         end
+      end
+
+      def escape_name(name)
+        name.gsub('\\', '\\\\\\').gsub(' ', '\ ')
       end
     end
   end
